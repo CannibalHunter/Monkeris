@@ -16,12 +16,27 @@
 
 /obj/item/storage/box/donut
 	icon = 'icons/obj/food.dmi'
-	icon_state = "donutbox"
+	icon_state = "donutbox-open"
 	name = "donut box"
-	max_storage_space = 12 //The amount of starting donuts multiplied by the donut item size to keep only exact space requirement met.
+	max_storage_space = 14 //The amount of starting donuts multiplied by the donut item size to keep only exact space requirement met.
 	can_hold = list(/obj/item/reagent_containers/food/snacks/donut)
-	prespawned_content_amount = 6
+	prespawned_content_amount = 7
 	prespawned_content_type = /obj/item/reagent_containers/food/snacks/donut/normal
+	var/donutbox_isopen = TRUE
+
+/obj/item/storage/box/donut/attack_self(mob/user)
+	donutbox_isopen = !donutbox_isopen
+	playsound(src, 'sound/machines/click.ogg', 25, ignore_walls = FALSE)
+	user.visible_message(span_notice("[user] [donutbox_isopen == 1 ? "opens" : "closes"] \the [src.name]."), span_notice("I [donutbox_isopen == 1 ? "open" : "close"] \the [src.name]."))
+	update_icon()
+	return
+
+/obj/item/storage/box/donut/open(mob/user)
+	if(donutbox_isopen)
+		return ..()
+	else
+		to_chat(user, span_warning("The donut box is closed. I need to open it first before I can look inside."))
+		return
 
 /obj/item/storage/box/donut/populate_contents()
 	for(var/i in 1 to prespawned_content_amount)
@@ -30,10 +45,17 @@
 
 /obj/item/storage/box/donut/update_icon()
 	cut_overlays()
-	var/i = 0
-	for(var/obj/item/reagent_containers/food/snacks/donut/D in contents)
-		overlays += image('icons/obj/food.dmi', "[i][D.overlay_state]")
-		i++
+
+	if(!donutbox_isopen)
+		icon_state = "donutbox-closed"
+		return
+	else
+		icon_state = "donutbox-open"
+		var/cur_donut = 0
+		for(var/obj/item/reagent_containers/food/snacks/donut/D in contents)
+			overlays += image(icon='icons/obj/food.dmi', icon_state="[D.overlay_state]", pixel_x=(cur_donut*2))
+			cur_donut++
+		return
 
 /obj/item/storage/box/donut/empty
 	prespawned_content_amount = 0

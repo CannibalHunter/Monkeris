@@ -68,4 +68,4 @@
 	if(opened)
 		cut_overlays()
 		for(var/obj/item/reagent_containers/food/snacks/donut/stat_buff/D in contents)
-			overlays += image('icons/obj/food.dmi', "[D.overlay_state]")
+			overlays += image('icons/obj/food.dmi', "case_[D.overlay_state]")
